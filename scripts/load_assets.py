@@ -17,8 +17,8 @@ def load_assets():
     for _, row in df.iterrows():
         cur.execute(
             """
-            INSERT INTO assets (ticker, name, asset_type, exchange, currency)
-            VALUES (%s, %s, %s, %s, %s)
+            INSERT INTO assets (ticker, name, asset_type, currency)
+            VALUES (%s, %s, %s, %s)
             ON CONFLICT (ticker) DO NOTHING
             """,
             (
