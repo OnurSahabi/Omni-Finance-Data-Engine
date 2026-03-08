@@ -1,12 +1,12 @@
-ticker,name,asset_type,currency
-AAPL,Apple Inc.,equity,USD
-MSFT,Microsoft Corporation,equity,USD
-NVDA,NVIDIA Corporation,equity,USD
-AMZN,Amazon.com Inc.,equity,USD
-GOOGL,Alphabet Inc.,equity,USD
-JPM,JPMorgan Chase & Co.,equity,USD
-BAC,Bank of America Corp.,equity,USD
-GS,Goldman Sachs Group Inc.,equity,USD
-SP500,S&P 500 Index,index,USD
-DJI,Dow Jones Industrial Average,index,USD
-NASDAQ,Nasdaq Composite Index,index,USD
+ticker,name,asset_type,currency,api_symbol
+AAPL,Apple Inc.,equity,USD,AAPL
+MSFT,Microsoft Corporation,equity,USD,MSFT
+NVDA,NVIDIA Corporation,equity,USD,NVDA
+AMZN,Amazon.com Inc.,equity,USD,AMZN
+GOOGL,Alphabet Inc.,equity,USD,GOOGL
+JPM,JPMorgan Chase & Co.,equity,USD,JPM
+BAC,Bank of America Corp.,equity,USD,BAC
+GS,Goldman Sachs Group Inc.,equity,USD,GS
+SP500,S&P 500 Index,index,USD,^GSPC
+DJI,Dow Jones Industrial Average,index,USD,^DJI
+NASDAQ,Nasdaq Composite Index,index,USD,^IXIC
