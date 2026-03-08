@@ -9,26 +9,21 @@ CREATE TABLE assets (
 
 CREATE TABLE prices (
     price_id BIGSERIAL PRIMARY KEY,
-    asset_id INT REFERENCES assets(asset_id),
-    price_time TIMESTAMP NOT NULL,
-    open NUMERIC,
-    high NUMERIC,
-    low NUMERIC,
-    close NUMERIC,
+    asset_id INT NOT NULL REFERENCES assets(asset_id),
+    price_time DATE NOT NULL,
+    open DOUBLE PRECISION,
+    high DOUBLE PRECISION,
+    low DOUBLE PRECISION,
+    close DOUBLE PRECISION,
     volume BIGINT,
-    UNIQUE (asset_id, timestamp)
+    UNIQUE (asset_id, price_time)
 );
 
 CREATE TABLE returns (
     return_id BIGSERIAL PRIMARY KEY,
-    asset_id INT REFERENCES assets(asset_id),
-    return_time TIMESTAMP NOT NULL,
-    return NUMERIC,
-    UNIQUE (asset_id, timestamp)
+    asset_id INT NOT NULL REFERENCES assets(asset_id),
+    return_time DATE NOT NULL,
+    simple_return DOUBLE PRECISION,
+    log_return DOUBLE PRECISION,
+    UNIQUE (asset_id, return_time)
 );
-
-CREATE INDEX idx_prices_asset_time
-ON prices(asset_id, price_time);
-
-CREATE INDEX idx_returns_asset_time
-ON returns(asset_id, return_time);
