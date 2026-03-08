@@ -25,7 +25,6 @@ def load_assets():
                 row["ticker"],
                 row["name"],
                 row["asset_type"],
-                row["exchange"],
                 row["currency"],
             ),
         )
