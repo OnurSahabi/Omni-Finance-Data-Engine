@@ -30,6 +30,8 @@ if __name__ == "__main__":
     df = df.dropna(subset=["asset_id"])
     df["asset_id"] = df["asset_id"].astype(int)
 
+    df = df.sort_values(["date", "asset_id"])
+
     prices_df = df[
         ["asset_id", "date", "open", "high", "low", "close", "volume"]
     ]
