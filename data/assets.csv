@@ -1,4 +1,4 @@
-ticker,name,asset_type,exchange,currency
+ticker,name,asset_type,currency
 AAPL,Apple Inc.,equity,USD
 MSFT,Microsoft Corporation,equity,USD
 NVDA,NVIDIA Corporation,equity,USD
