@@ -3,7 +3,6 @@ CREATE TABLE assets (
     ticker VARCHAR(20) UNIQUE NOT NULL,
     name TEXT,
     asset_type VARCHAR(20) NOT NULL,
-    exchange VARCHAR(20),
     currency VARCHAR(10)
 );
 
