@@ -1,0 +1,11 @@
+ticker,name,asset_type,exchange,currency
+AAPL,Apple Inc.,equity,NASDAQ,USD
+MSFT,Microsoft Corporation,equity,NASDAQ,USD
+NVDA,NVIDIA Corporation,equity,NASDAQ,USD
+AMZN,Amazon.com Inc.,equity,NASDAQ,USD
+GOOGL,Alphabet Inc.,equity,NASDAQ,USD
+JPM,JPMorgan Chase & Co.,equity,NYSE,USD
+BAC,Bank of America Corp.,equity,NYSE,USD
+GS,Goldman Sachs Group Inc.,equity,NYSE,USD
+SPY,SPDR S&P 500 ETF,etf,NYSE,USD
+QQQ,Invesco QQQ Trust,etf,NASDAQ,USD
