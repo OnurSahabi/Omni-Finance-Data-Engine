@@ -7,16 +7,13 @@ if __name__ == "__main__":
     conn = get_connection()
     cur = conn.cursor()
 
-
-    cur.execute("SELECT asset_id, ticker FROM assets")
+    cur.execute("SELECT asset_id, api_symbol FROM assets")
 
     rows = cur.fetchall()
 
+    assets_map = {api_symbol: asset_id for asset_id, api_symbol in rows}
 
-    assets_map = {ticker: asset_id for asset_id, ticker in rows}
-
-
-    tickers = [ticker for _, ticker in rows]
+    tickers = [api_symbol for _, api_symbol in rows]
 
     print("Tickers:", tickers)
 
@@ -29,6 +26,9 @@ if __name__ == "__main__":
 
 
     df["asset_id"] = df["ticker"].map(assets_map)
+
+    df = df.dropna(subset=["asset_id"])
+    df["asset_id"] = df["asset_id"].astype(int)
 
     prices_df = df[
         ["asset_id", "date", "open", "high", "low", "close", "volume"]
@@ -46,7 +46,7 @@ if __name__ == "__main__":
     print(returns_df.head())
 
 
-    prices_data = prices_df.values.tolist()
+    prices_data = list(prices_df.itertuples(index=False, name=None))
 
     execute_batch(
         cur,
@@ -62,7 +62,7 @@ if __name__ == "__main__":
     print(f"{len(prices_data)} price rows inserted")
 
 
-    returns_data = returns_df.values.tolist()
+    returns_data = list(returns_df.itertuples(index=False, name=None))
 
     execute_batch(
         cur,
