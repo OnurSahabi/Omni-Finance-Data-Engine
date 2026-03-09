@@ -1,4 +1,5 @@
 services:
+
   postgres:
     image: postgres:15
     container_name: fintek-postgres
@@ -10,39 +11,44 @@ services:
       POSTGRES_MAX_CONNECTIONS: 100
     ports:
       - "5432:5432"
-    deploy:
-      resources:
-        limits:
-          memory: 2g
+    volumes:
+      - ./pgdata:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U finance -d fintek_db"]
       interval: 5s
       timeout: 5s
       retries: 5
-    volumes:
-      - ./pgdata:/var/lib/postgresql/data
+    networks:
+      - fintek_network
 
-  # Spark Master
+
   spark-master:
-    image: public.ecr.aws/bitnami/spark:4.1
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
     container_name: spark-master
-    restart: no
+    restart: unless-stopped
     environment:
       - SPARK_MODE=master
+      - SPARK_MASTER_HOST=spark-master
     ports:
       - "8081:8080"
       - "7077:7077"
+    networks:
+      - fintek_network
 
-  # Spark Worker
+
   spark-worker:
-    image: public.ecr.aws/bitnami/spark:4.1
+    build:
+      context: .
+      dockerfile: Dockerfile.spark
     container_name: spark-worker
-    restart: no
+    restart: unless-stopped
     depends_on:
-      postgres:
-        condition: service_healthy
       spark-master:
         condition: service_started
+      postgres:
+        condition: service_healthy
     environment:
       - SPARK_MODE=worker
       - SPARK_MASTER_URL=spark://spark-master:7077
@@ -51,3 +57,29 @@ services:
       - SPARK_DRIVER_MEMORY=1G
     ports:
       - "8082:8081"
+    networks:
+      - fintek_network
+
+
+  jupyter:
+    image: jupyter/pyspark-notebook
+    container_name: fintek-jupyter
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - ./:/home/jovyan/work
+      
+    environment:
+      - JUPYTER_TOKEN=fintek123
+      
+    depends_on:
+      - spark-master
+      - postgres
+    networks:
+      - fintek_network
+
+
+networks:
+  fintek_network:
+    driver: bridge
