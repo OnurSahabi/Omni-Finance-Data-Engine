@@ -2,15 +2,12 @@ FROM jupyter/scipy-notebook
 
 USER root
 
-# Java kur (Spark için gerekli)
 RUN apt-get update && \
     apt-get install -y openjdk-17-jdk && \
     rm -rf /var/lib/apt/lists/*
 
-# JAVA_HOME ayarla
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
-# PySpark kur (cluster ile aynı versiyon olmalı)
 RUN pip install pyspark==4.1.0
 
 USER jovyan
