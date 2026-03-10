@@ -1,8 +1,37 @@
+import argparse  # Adım 1: Argümanları okumak için gerekli kütüphaneyi ekliyoruz
 from src.market_data_ingestion import fetch_multiple_tickers
 from src.db_connection import get_connection
 from psycopg2.extras import execute_batch
 
+
+# Adım 2: Dışarıdan gelecek parametreleri ayarladığımız fonksiyon
+def get_args():
+    # Argüman okuyucu objemizi oluşturuyoruz ve kodumuzun ne yaptığını açıklıyoruz
+    parser = argparse.ArgumentParser(
+        description="Piyasa verilerini yfinance üzerinden indirir ve veritabanına kaydeder.")
+
+    # Başlangıç tarihi parametresi ekleniyor (--start)
+    parser.add_argument(
+        "--start",
+        type=str,
+        default="2020-01-01",  # Eğer terminalden tarih girilmezse bu kullanılacak
+        help="Başlangıç tarihi (Format: YYYY-AA-GG, Örn: 2023-05-01)"
+    )
+
+    # Bitiş tarihi parametresi ekleniyor (--end)
+    parser.add_argument(
+        "--end",
+        type=str,
+        default=None,  # Eğer girilmezse yfinance varsayılan olarak bugünü alır
+        help="Bitiş tarihi (Format: YYYY-AA-GG, Örn: 2024-01-01)"
+    )
+
+    return parser.parse_args()
+
+
 if __name__ == "__main__":
+    # Adım 3: Terminalden girilen argümanları alıyoruz
+    args = get_args()
 
     conn = get_connection()
     cur = conn.cursor()
@@ -17,13 +46,15 @@ if __name__ == "__main__":
 
     print("Tickers:", tickers)
 
-    print(f"Downloading data since 2024-01-01 for {len(tickers)} assets")
+    # Yazdırılan mesajı da dinamik hale getiriyoruz
+    print(f"Downloading data since {args.start} to {args.end if args.end else 'today'} for {len(tickers)} assets")
 
+    # Adım 4: fetch_multiple_tickers fonksiyonuna dinamik argümanları gönderiyoruz
     df = fetch_multiple_tickers(
         tickers,
-        start="2024-01-01"
+        start=args.start,
+        end=args.end
     )
-
 
     df["asset_id"] = df["ticker"].map(assets_map)
 
@@ -36,7 +67,6 @@ if __name__ == "__main__":
         ["asset_id", "date", "open", "high", "low", "close", "volume"]
     ]
 
-
     returns_df = df[
         ["asset_id", "date", "simple_return", "log_return"]
     ].dropna()
@@ -46,7 +76,6 @@ if __name__ == "__main__":
 
     print("\nRETURNS")
     print(returns_df.head())
-
 
     prices_data = list(prices_df.itertuples(index=False, name=None))
 
@@ -62,7 +91,6 @@ if __name__ == "__main__":
         page_size=1000
     )
     print(f"{len(prices_data)} price rows inserted")
-
 
     returns_data = list(returns_df.itertuples(index=False, name=None))
 
