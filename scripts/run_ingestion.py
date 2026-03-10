@@ -4,13 +4,10 @@ from src.db_connection import get_connection
 from psycopg2.extras import execute_batch
 
 
-# Adım 2: Dışarıdan gelecek parametreleri ayarladığımız fonksiyon
 def get_args():
-    # Argüman okuyucu objemizi oluşturuyoruz ve kodumuzun ne yaptığını açıklıyoruz
     parser = argparse.ArgumentParser(
         description="Piyasa verilerini yfinance üzerinden indirir ve veritabanına kaydeder.")
 
-    # Başlangıç tarihi parametresi ekleniyor (--start)
     parser.add_argument(
         "--start",
         type=str,
@@ -18,7 +15,6 @@ def get_args():
         help="Başlangıç tarihi (Format: YYYY-AA-GG, Örn: 2023-05-01)"
     )
 
-    # Bitiş tarihi parametresi ekleniyor (--end)
     parser.add_argument(
         "--end",
         type=str,
@@ -30,7 +26,6 @@ def get_args():
 
 
 if __name__ == "__main__":
-    # Adım 3: Terminalden girilen argümanları alıyoruz
     args = get_args()
 
     conn = get_connection()
@@ -46,10 +41,8 @@ if __name__ == "__main__":
 
     print("Tickers:", tickers)
 
-    # Yazdırılan mesajı da dinamik hale getiriyoruz
     print(f"Downloading data since {args.start} to {args.end if args.end else 'today'} for {len(tickers)} assets")
 
-    # Adım 4: fetch_multiple_tickers fonksiyonuna dinamik argümanları gönderiyoruz
     df = fetch_multiple_tickers(
         tickers,
         start=args.start,
