@@ -1,17 +1,11 @@
-# Temel Bitnami Spark imajını alıyoruz
 FROM public.ecr.aws/bitnami/spark:4.1
 
-# Dosya indirme ve paket kurma izni için root kullanıcısına geçiyoruz
 USER root
 
-# 1. ADIM: Sisteme eksik olan 'wget' aracını kuruyoruz
 RUN apt-get update && apt-get install -y wget
 
-# 2. ADIM: JAR dosyasını indiriyoruz.
 RUN wget -q https://jdbc.postgresql.org/download/postgresql-42.7.3.jar -O /opt/bitnami/spark/jars/postgresql-42.7.3.jar
 
-# 3. ADIM: Spark'ın dosyayı okuyabilmesi için sahipliği varsayılan Bitnami kullanıcısına (1001) veriyoruz
 RUN chown 1001:1001 /opt/bitnami/spark/jars/postgresql-42.7.3.jar
 
-# Güvenlik için tekrar standart kullanıcıya dönüyoruz
 USER 1001
