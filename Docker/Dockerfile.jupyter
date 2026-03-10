@@ -10,4 +10,4 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 USER jovyan
 
-RUN pip install --no-cache-dir pyspark==4.1.0
+RUN pip install --no-cache-dir pyspark==4.1.1
