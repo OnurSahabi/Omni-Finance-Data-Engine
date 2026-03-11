@@ -1,4 +1,4 @@
-FROM jupyter/scipy-notebook
+FROM jupyter/base-notebook
 
 USER root
 
@@ -10,4 +10,10 @@ ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 
 USER jovyan
 
-RUN pip install --no-cache-dir pyspark==4.1.1
+RUN pip install --no-cache-dir \
+    pyspark==4.1.1 \
+    pandas==2.2.2 \
+    numpy \
+    matplotlib \
+    seaborn \
+    plotly
