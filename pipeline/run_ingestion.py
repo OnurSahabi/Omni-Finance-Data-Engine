@@ -1,4 +1,4 @@
-import argparse  # Adım 1: Argümanları okumak için gerekli kütüphaneyi ekliyoruz
+import argparse 
 from src.market_data_ingestion import fetch_multiple_tickers
 from src.db_connection import get_connection
 from psycopg2.extras import execute_batch
