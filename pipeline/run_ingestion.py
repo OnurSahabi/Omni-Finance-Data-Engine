@@ -1,4 +1,5 @@
-import argparse 
+import argparse
+from datetime import timedelta
 from src.market_data_ingestion import fetch_multiple_tickers
 from src.db_connection import get_connection
 from psycopg2.extras import execute_batch
@@ -6,48 +7,67 @@ from psycopg2.extras import execute_batch
 
 def get_args():
     parser = argparse.ArgumentParser(
-        description="Piyasa verilerini yfinance üzerinden indirir ve veritabanına kaydeder.")
+        description="Piyasa verilerini indirir ve veritabanına kaydeder."
+    )
 
     parser.add_argument(
         "--start",
         type=str,
-        default="2020-01-01",  # Eğer terminalden tarih girilmezse bu kullanılacak
-        help="Başlangıç tarihi (Format: YYYY-AA-GG, Örn: 2023-05-01)"
+        default="2020-01-01",
+        help="Başlangıç tarihi (fallback)"
     )
 
     parser.add_argument(
         "--end",
         type=str,
-        default=None,  # Eğer girilmezse yfinance varsayılan olarak bugünü alır
-        help="Bitiş tarihi (Format: YYYY-AA-GG, Örn: 2024-01-01)"
+        default=None,
+        help="Bitiş tarihi"
     )
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
+
     args = get_args()
 
     conn = get_connection()
     cur = conn.cursor()
 
+    # asset listesi
     cur.execute("SELECT asset_id, api_symbol FROM assets")
-
     rows = cur.fetchall()
 
     assets_map = {api_symbol: asset_id for asset_id, api_symbol in rows}
-
     tickers = [api_symbol for _, api_symbol in rows]
 
     print("Tickers:", tickers)
 
-    print(f"Downloading data since {args.start} to {args.end if args.end else 'today'} for {len(tickers)} assets")
+    # son veri tarihini bul
+    cur.execute("""
+        SELECT MAX(price_time)
+        FROM prices
+    """)
+
+    last_date = cur.fetchone()[0]
+
+    if last_date is None:
+        start_date = args.start
+    else:
+        start_date = last_date.strftime("%Y-%m-%d")
+
+    print(f"Start date: {start_date}")
+    print(f"End date: {args.end if args.end else 'today'}")
 
     df = fetch_multiple_tickers(
         tickers,
-        start=args.start,
+        start=start_date,
         end=args.end
     )
+
+    if df.empty:
+        print("No new data.")
+        exit()
 
     df["asset_id"] = df["ticker"].map(assets_map)
 
@@ -60,15 +80,12 @@ if __name__ == "__main__":
         ["asset_id", "date", "open", "high", "low", "close", "volume"]
     ]
 
+    if last_date is not None:
+        prices_df = prices_df[prices_df["date"] > last_date]
+
     returns_df = df[
         ["asset_id", "date", "simple_return", "log_return"]
     ].dropna()
-
-    print("\nPRICES")
-    print(prices_df.head())
-
-    print("\nRETURNS")
-    print(returns_df.head())
 
     prices_data = list(prices_df.itertuples(index=False, name=None))
 
@@ -83,6 +100,7 @@ if __name__ == "__main__":
         prices_data,
         page_size=1000
     )
+
     print(f"{len(prices_data)} price rows inserted")
 
     returns_data = list(returns_df.itertuples(index=False, name=None))
@@ -98,6 +116,7 @@ if __name__ == "__main__":
         returns_data,
         page_size=1000
     )
+
     print(f"{len(returns_data)} return rows inserted")
 
     conn.commit()
