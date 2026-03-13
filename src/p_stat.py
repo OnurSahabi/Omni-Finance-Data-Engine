@@ -17,7 +17,6 @@ def p_stats(data_var, data_index, var_cols=None, index_col=None, weights=None, t
     def calc_beta(assets, mkt):
         return assets.apply(lambda col: col.cov(mkt) / mkt.var())
 
-    # 1. Hesaplamalar
     beta = calc_beta(df_assets, s_index)
     q_low, q_high = s_index.quantile(tau), s_index.quantile(1 - tau)
 
@@ -25,7 +24,6 @@ def p_stats(data_var, data_index, var_cols=None, index_col=None, weights=None, t
     beta_high = calc_beta(df_assets[s_index >= q_high], s_index[s_index >= q_high])
     beta_mid = calc_beta(df_assets[(s_index > q_low) & (s_index < q_high)], s_index[(s_index > q_low) & (s_index < q_high)])
 
-    # --- BAŞLIKLARI BURADA DÜZENLİYORUZ ---
     name_beta = "Beta"
     name_mid  = f"Beta (Mid %{100*(1-2*tau):g})"
     name_low  = f"Beta (Low %{100*tau:g})"
@@ -44,19 +42,16 @@ def p_stats(data_var, data_index, var_cols=None, index_col=None, weights=None, t
         beta_p = beta_df.dot(weights)
         port_ret = df_assets.dot(weights)
         
-        # Portföy metrikleri (doğrusal olmayanlar için yeniden hesaplama)
         beta_p[name_treynor] = (port_ret.mean() - rf) / np.sum(beta * weights)
         beta_p[name_var] = abs(port_ret.quantile(tau))
         beta_df["Portfolio"] = beta_p
 
-    # 2. Düzenleme ve Sıralama
     result_df = beta_df.T.round(4)
     
     if "Portfolio" in result_df.index:
         other_tickers = sorted([idx for idx in result_df.index if idx != "Portfolio"])
         result_df = result_df.reindex(["Portfolio"] + other_tickers)
     
-    # 3. Formatlama
     format_dict = {}
     for col in result_df.columns:
         if "beta" in col.lower(): format_dict[col] = "{:.2f}"
