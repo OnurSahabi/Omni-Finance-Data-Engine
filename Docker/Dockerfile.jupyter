@@ -19,4 +19,6 @@ RUN pip install --no-cache-dir \
     quadprog \
     matplotlib \
     seaborn \
-    plotly
+    plotly \
+    networkx \
+    community 
