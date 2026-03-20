@@ -68,6 +68,8 @@ services:
       - SPARK_EXTRA_CLASSPATH=/opt/bitnami/spark/jars/rapids-4-spark.jar
       - SPARK_CONF_spark.plugins=com.nvidia.spark.SQLPlugin
       - SPARK_CONF_spark.rapids.sql.enabled=true
+      - SPARK_CONF_spark.rapids.memory.gpu.allocSize=1024m
+      - SPARK_CONF_spark.rapids.memory.gpu.maxAllocSize=4096m
     ports:
       - "8082:8081"
     deploy:
@@ -77,8 +79,6 @@ services:
             - driver: nvidia
               count: all
               capabilities: [gpu]
-      limits:
-        memory: 4g
     networks:
       - fintek_network
 
