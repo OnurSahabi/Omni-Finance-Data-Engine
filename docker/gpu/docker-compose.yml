@@ -25,25 +25,15 @@ services:
   spark-master:
     build:
       context: .
-      dockerfile: dockerfilegpu.spark
+      dockerfile: Dockerfile.spark
     container_name: spark-master
     restart: unless-stopped
     environment:
       - SPARK_MODE=master
       - SPARK_MASTER_HOST=spark-master
-      - SPARK_EXTRA_CLASSPATH=/opt/bitnami/spark/jars/rapids-4-spark.jar
-      - SPARK_CONF_spark.plugins=com.nvidia.spark.SQLPlugin
-      - SPARK_CONF_spark.rapids.sql.enabled=true
     ports:
       - "8081:8080"
       - "7077:7077"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
     networks:
       - fintek_network
 
@@ -51,7 +41,7 @@ services:
   spark-worker:
     build:
       context: .
-      dockerfile: dockerfilegpu.spark
+      dockerfile: Dockerfile.spark
     container_name: spark-worker
     restart: unless-stopped
     depends_on:
@@ -65,20 +55,8 @@ services:
       - SPARK_WORKER_MEMORY=4G
       - SPARK_WORKER_CORES=2
       - SPARK_DRIVER_MEMORY=1G
-      - SPARK_EXTRA_CLASSPATH=/opt/bitnami/spark/jars/rapids-4-spark.jar
-      - SPARK_CONF_spark.plugins=com.nvidia.spark.SQLPlugin
-      - SPARK_CONF_spark.rapids.sql.enabled=true
-      - SPARK_CONF_spark.rapids.memory.gpu.allocSize=1024m
-      - SPARK_CONF_spark.rapids.memory.gpu.maxAllocSize=4096m
     ports:
       - "8082:8081"
-    deploy:
-      resources:
-        reservations:
-          devices:
-            - driver: nvidia
-              count: all
-              capabilities: [gpu]
     networks:
       - fintek_network
 
@@ -93,7 +71,7 @@ services:
       - "8888:8888"
       - "4040:4040"
     volumes:
-      - ./:/home/jovyan/work
+      - ./:/home/rapids/work
     environment:
       - JUPYTER_TOKEN=fintek123
     depends_on:
@@ -101,7 +79,8 @@ services:
       - postgres
     networks:
       - fintek_network
-
+    gpus: all
+    command: ["jupyter", "lab", "--ip=0.0.0.0", "--port=8888", "--no-browser", "--allow-root", "--notebook-dir=/home/rapids/work"]
 
 networks:
   fintek_network:
