@@ -1,0 +1,19 @@
+FROM public.ecr.aws/bitnami/spark:4.0.0
+
+USER root
+
+RUN apt-get update && \
+    apt-get install -y wget python3.11 python3.11-distutils python3.11-venv
+
+RUN rm -rf /opt/bitnami/python && \
+    ln -s /usr/bin /opt/bitnami/python
+
+RUN wget -q https://jdbc.postgresql.org/download/postgresql-42.7.3.jar \
+    -O /opt/bitnami/spark/jars/postgresql-42.7.3.jar
+
+RUN chown 1001:1001 /opt/bitnami/spark/jars/postgresql-42.7.3.jar
+
+ENV PYSPARK_PYTHON=/usr/bin/python3.11
+ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python3.11
+
+USER 1001
