@@ -1,0 +1,26 @@
+FROM public.ecr.aws/bitnami/spark:4.0.0
+
+USER root
+
+# Python 3.11
+RUN apt-get update && \
+    apt-get install -y wget python3.11 python3.11-distutils python3.11-venv python3-pip
+
+# Bitnami Python override
+RUN rm -rf /opt/bitnami/python && \
+    ln -s /usr/bin /opt/bitnami/python
+
+# PostgreSQL driver
+RUN wget -q https://jdbc.postgresql.org/download/postgresql-42.7.3.jar \
+    -O /opt/bitnami/spark/jars/postgresql-42.7.3.jar
+RUN chown 1001:1001 /opt/bitnami/spark/jars/postgresql-42.7.3.jar
+
+# RAPIDS Spark plugin JAR
+RUN wget -q https://repo1.maven.org/maven2/com/nvidia/rapids-4-spark_2.13/25.12.0/rapids-4-spark_2.13-25.12.0.jar \
+    -O /opt/bitnami/spark/jars/rapids-4-spark.jar
+RUN chown 1001:1001 /opt/bitnami/spark/jars/rapids-4-spark.jar
+
+ENV PYSPARK_PYTHON=/usr/bin/python3.11
+ENV PYSPARK_DRIVER_PYTHON=/usr/bin/python3.11
+
+USER 1001
